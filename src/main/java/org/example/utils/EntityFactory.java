@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import org.example.entities.*;
+import org.example.entities.Impl.*;
 
 import java.util.ArrayList;
 import java.util.Random;

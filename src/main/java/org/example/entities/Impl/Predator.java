@@ -1,10 +1,11 @@
-package org.example.entities;
+package org.example.entities.Impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.config.Signs;
+import org.example.entities.Creature;
 
-public class Predator extends Creature{
+public class Predator extends Creature {
     public static final int maxHealth = 3;
     public static final int maxSpeed = 5;
     public static final int maxAttackPower = 5;

@@ -1,11 +1,12 @@
-package org.example.entities;
+package org.example.entities.Impl;
 
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.config.Signs;
+import org.example.entities.Creature;
 
-public class Hervibore extends Creature{
+public class Hervibore extends Creature {
     public static final int maxHealth = 5;
     public static final int maxSpeed = 5;
     private final Logger logger = LogManager.getLogger();

@@ -11,15 +11,10 @@ import java.util.Map.Entry;
 
 public abstract class APathFindService {
 
-//    public static double calcDistance(Cell startCell, Cell targetCell){
-//        return Math.sqrt(Math.pow(startCell.getX()-targetCell.getX(), 2) -
-//                Math.pow(startCell.getY()-targetCell.getY(), 2))
-//    }
-
-
     /**
      * Возвращает массив Object[2], где первый элемент - объект-цель(Entity),
      * а второй элемент - его объект-ячейка (Cell), в которой он находится.
+     * Быстрее при размерах карты более 1500х1500. Реализован на цикле.
      *
      * @return массив Object[2]
      */
@@ -27,7 +22,6 @@ public abstract class APathFindService {
         Cell targetCell = null;
         Entity targetEntity = null;
         double minDistance = Double.MAX_VALUE;
-        // TODO: наверняка это можно переписать черезе Stream API
         for (var entry : map.getEntitiesMap().entrySet()) {
             Cell cell = entry.getKey();
             Entity entity = entry.getValue();
@@ -47,7 +41,15 @@ public abstract class APathFindService {
         }
     }
 
-    // потренировался сос Stream API - переписал верхнюю функцию
+    /**
+     * Возвращает массив Object[2], где первый элемент - объект-цель(Entity),
+     * а второй элемент - его объект-ячейка (Cell), в которой он находится.
+     * Быстрее оригинального метода при картах размером менее 1500х1500.
+     * Реализован на Stream API
+     *
+     * @return массив Object[2]
+     */
+    // потренировался со Stream API - переписал верхнюю функцию
     public static Object[] findNearestTargetStreamAPI(Class<?> targetClass, Cell startCell, Map map) {
         Entry<Cell, Double> target_pair = map.getEntitiesMap().entrySet().stream()
                 .filter(x -> targetClass.isInstance(x.getValue()))
@@ -64,25 +66,45 @@ public abstract class APathFindService {
         }
     }
 
-    // TODO: проверить потом будет ли сравнение == работать как надо
-    public boolean isTargetExists(Entity target, Cell targetCell, Map map) {
+
+    // TODO: проверить потом будет ли сравнение "==" работать как надо? или нужно будет менять на equals
+    public boolean isTargetExist(Entity target, Cell targetCell, Map map) {
         return map.getEntitiesMap().get(targetCell) == target;
     }
 
-
     /**
-     * Находит и возвращает лист соседних клеток для заданной
+     * Находит и возвращает лист соседних клеток для заданной карты
      *
      * @param cell клетка, для которой искать соседей
      * @param map  карта мира
      * @return лист соседних клеток для cell
      */
     public static List<Cell> getAdjacentCells(Cell cell, Map map) {
-        double MAX_DISTANCE = 1.5;
+        double MAX_DISTANCE = 1.5;  // расстояние до диагональных соседних клеток (~1.41)
 
         return map.getEntitiesMap().keySet().stream()
                 .filter(x -> cell.calcDistance(x) < MAX_DISTANCE && !x.equals(cell)).toList();
-
     }
+
+    /**
+     * Находит и возвращает лист соседних клеток для заданного списка клеток
+     *
+     * @param cell клетка, для которой искать соседей
+     * @param cells список всех клеток
+     * @return лист соседних клеток для cell
+     */
+    public static List<Cell> getAdjacentCells(Cell cell, List<Cell> cells) {
+        double MAX_DISTANCE = 1.5;  // расстояние до диагональных соседних клеток (~1.41)
+
+        return cells.stream()
+                .filter(x -> cell.calcDistance(x) < MAX_DISTANCE && !x.equals(cell))
+                .toList();
+    }
+
+
+    public static Object[] findPath(Class<?> targetClass, Cell startCell, Map map){
+        return null;
+    };
+
 
 }
