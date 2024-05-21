@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@Deprecated
 public interface PathFindService {
 
     //---Directions---//

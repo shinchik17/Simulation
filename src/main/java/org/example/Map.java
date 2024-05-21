@@ -2,7 +2,6 @@ package org.example;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.entities.Creature;
 import org.example.entities.Entity;
 import org.example.entities.Obstacle;
 import org.example.utils.EntityFactory;

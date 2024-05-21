@@ -6,8 +6,10 @@ import org.example.entities.Entity;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
-public class APathFindService implements PathFindService {
+
+public abstract class APathFindService {
 
 //    public static double calcDistance(Cell startCell, Cell targetCell){
 //        return Math.sqrt(Math.pow(startCell.getX()-targetCell.getX(), 2) -
@@ -22,7 +24,6 @@ public class APathFindService implements PathFindService {
      * @return массив Object[2]
      */
     public static Object[] findNearestTarget(Class<?> targetClass, Cell startCell, Map map) {
-
         Cell targetCell = null;
         Entity targetEntity = null;
         double minDistance = Double.MAX_VALUE;
@@ -46,21 +47,34 @@ public class APathFindService implements PathFindService {
         }
     }
 
-    @Override
+    // потренировался сос Stream API - переписал верхнюю функцию
+    public static Object[] findNearestTargetStreamAPI(Class<?> targetClass, Cell startCell, Map map) {
+        Entry<Cell, Double> target_pair = map.getEntitiesMap().entrySet().stream()
+                .filter(x -> targetClass.isInstance(x.getValue()))
+                .collect(Collectors.toMap(
+                        k -> k.getKey(),
+                        v -> startCell.calcDistance(v.getKey())))
+                .entrySet().stream().min(Entry.comparingByValue())
+                .stream().findFirst().orElse(null);
+
+        if (target_pair == null) {
+            return null;
+        } else {
+            return new Object[]{map.getEntitiesMap().get(target_pair.getKey()), target_pair.getKey()};
+        }
+    }
+
+    // TODO: проверить потом будет ли сравнение == работать как надо
     public boolean isTargetExists(Entity target, Cell targetCell, Map map) {
         return map.getEntitiesMap().get(targetCell) == target;
     }
 
 
-    @Override
-    public ArrayDeque<Cell> findPath(Cell targetCell, Cell startCell, Map map) {
-        return null;
-    }
-
     /**
      * Находит и возвращает лист соседних клеток для заданной
+     *
      * @param cell клетка, для которой искать соседей
-     * @param map карта мира
+     * @param map  карта мира
      * @return лист соседних клеток для cell
      */
     public static List<Cell> getAdjacentCells(Cell cell, Map map) {
@@ -68,8 +82,6 @@ public class APathFindService implements PathFindService {
 
         return map.getEntitiesMap().keySet().stream()
                 .filter(x -> cell.calcDistance(x) < MAX_DISTANCE && !x.equals(cell)).toList();
-
-
 
     }
 
