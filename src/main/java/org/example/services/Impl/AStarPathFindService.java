@@ -1,39 +1,34 @@
-package org.example.algotries;
+package org.example.services.Impl;
+
+import org.example.Cell;
+import org.example.Map;
+import org.example.services.APathFindService;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class AStarAlgorithm {
-
-    public static void main(String[] args) {
-
-        int mapHeight = 5;
-        int mapWeight = 7;
+public class AStarPathFindService extends APathFindService {
 
 
+    public static ArrayDeque<Cell> findPath(Cell startCell, Cell targetCell, Map map) {
 
-        Node startNode = new Node(1, 2);
-        Node endNode = new Node(5, 2);
-        boolean[][] obstacles = new boolean[mapWeight][mapHeight];
-        obstacles[2][1] = true;
-        obstacles[3][1] = true;
-        obstacles[3][2] = true;
+        ArrayList<Node> nodeList = aStar(new Node(startCell), new Node(targetCell), map);
+        if (nodeList != null && !nodeList.isEmpty()) {
+            Collections.reverse(nodeList);
+            ArrayDeque<Cell> path = nodeList.stream().map(n -> new Cell(n.x, n.y)).collect(Collectors.toCollection(ArrayDeque::new));
+            path.removeFirst();
+//            path.removeLast();
+            return path;
 
-        ArrayList<Node> path = aStar(startNode, endNode, obstacles);
-        if (path != null){
-            for (Node n : path) {
-                System.out.printf("x = %d, y = %d\n", n.x, n.y);
-            }
+        } else {
+            return null;
         }
-        else {
-            System.out.println("Нет пути");
-        }
-
-
 
     }
 
-    // obstacles представляет собой маску карты
-    public static ArrayList<Node> aStar(Node startNode, Node endNode, boolean[][] obstacles){
+
+    public static ArrayList<Node> aStar(Node startNode, Node endNode, Map map) {
+
         PriorityQueue<Node> openNodesQueue = new PriorityQueue<>();
         openNodesQueue.add(startNode);
 
@@ -42,8 +37,8 @@ public class AStarAlgorithm {
         while (!openNodesQueue.isEmpty()) {
             Node currentNode = openNodesQueue.poll(); // вытаскиваем очередной узел
 
-            // если текущий узел - искомый конечный узел, возвращаем путь из узлов, включая
-            // начальный и конечный узел
+            // если текущий узел - искомый конечный узел, возвращаем путь из узлов,
+            // включая начальный и конечный узел
             if (currentNode.equals(endNode)) {
                 ArrayList<Node> path = new ArrayList<>();
                 while (currentNode != null) {
@@ -56,13 +51,14 @@ public class AStarAlgorithm {
 
             closedNodesSet.add(currentNode); // пометили узел как обработанный
 
-            ArrayList<Node> neighbours = findValidNeighbours(obstacles, currentNode); // ищем валидных соседей
+            ArrayList<Node> neighbours = (ArrayList<Node>) findValidNeighbours(currentNode, map); // ищем валидных соседей
 
             // теперь проходимся по всем соседям текущего узла
-            for(Node neighbour : neighbours){
+            for (Node neighbour : neighbours) {
                 // проверяем, не обработали ли мы этот узел (этого соседа текущего узла) раньше
-                if (closedNodesSet.contains(neighbour)){
-                    continue;} //TODO: можно вынести эту проверку findNeighbours
+                if (closedNodesSet.contains(neighbour)) {
+                    continue;
+                } //TODO: можно вынести эту проверку findNeighbours
 
                 // если нет, то вычисляем расстояние (в узлах) от стартовой точки до этого соседа через текущий узел
                 // т.е. сумма последовательная сумма расстояний между узлами (диагональ - дороже)
@@ -93,40 +89,23 @@ public class AStarAlgorithm {
             }
 
         }
-        
+
         return null;
     }
 
-    // возвращаем соседние для узла currentNode валидные узлы (нет препятствий, в пределах карты)
-    private static ArrayList<Node> findValidNeighbours(boolean[][] obstacles, Node currentNode) {
-        ArrayList<Node> neighbors = new ArrayList<>();
-        for(int dx = -1; dx < 2; dx++){
-            for (int dy = -1; dy < 2; dy++) {
 
-                if (dx == 0 && dy == 0){
-                    continue;}
+    private static List<Node> findValidNeighbours(Node node, Map map) {
+        var obstaclesMap = map.getObstaclesMap();
+        List<Cell> neighbourCells = getAdjacentCells(new Cell(node.x, node.y), map);
 
-                int x = currentNode.x + dx;
-                int y = currentNode.y + dy;
-
-                // проверяем, не вышли ли мы за карту
-                if (x>= obstacles.length || x < 0 || y >= obstacles[0].length || y < 0){
-                    continue;}
-
-                // проверяем наличие препятствий в этом узле
-                if (obstacles[x][y]){
-                    continue;}
-
-                // все проверки пройдены -> добавляем в список соседей текущего узла
-                Node neighbor = new Node(x, y);
-                neighbors.add(neighbor);
-            }
-        }
-        return neighbors;
+        return neighbourCells.stream()
+                .filter(x -> !obstaclesMap.containsKey(x))
+                .map(x -> new Node(x))
+                .collect(Collectors.toList());
     }
 
 
-    public static class Node implements Comparable<Node>{
+    public static class Node implements Comparable<Node> {
         private final int x;            // координаты
         private final int y;
         private double g = 0;           // расстояние от начального узла
@@ -139,8 +118,13 @@ public class AStarAlgorithm {
             this.y = y;
         }
 
+        public Node(Cell cell) {
+            this.x = cell.getX();
+            this.y = cell.getY();
+        }
+
         // вычисляем Евклидово расстояние
-        public double calcEuclideanDistance(Node targetNode){
+        public double calcEuclideanDistance(Node targetNode) {
             return Math.sqrt(Math.pow((targetNode.x - this.x), 2) + Math.pow((targetNode.y - this.y), 2));
         }
 

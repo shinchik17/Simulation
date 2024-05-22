@@ -67,10 +67,37 @@ public abstract class APathFindService {
     }
 
 
-    // TODO: проверить потом будет ли сравнение "==" работать как надо? или нужно будет менять на equals
-    public boolean isTargetExist(Entity target, Cell targetCell, Map map) {
-        return map.getEntitiesMap().get(targetCell) == target;
+    /**
+     * Возвращает массив Object[2], где первый элемент - объект-цель(Entity),
+     * а второй элемент - его объект-ячейка (Cell), в которой он находится.
+     * Реализован посредством поиска в ширину (BFS). Медленный при картах больше ~10х10
+     *
+     * @return массив Object[2]
+     */
+    public static Object[] findNearestTargetBFS(Class<?> targetClass, Cell startCell, Map map) {
+
+        HashMap<Cell, Entity> entitiesMap = map.getEntitiesMap();
+        List<Cell> cellsList = entitiesMap.keySet().stream().toList();
+
+        ArrayDeque<Cell> queue = new ArrayDeque<>(getAdjacentCells(startCell, cellsList));
+        ArrayList<Cell> searched = new ArrayList<>();
+
+        while (!queue.isEmpty()) {
+            Cell curCell = queue.pop();
+            if (!searched.contains(curCell)) {
+                if (targetClass.isInstance(entitiesMap.get(curCell))) {
+                    return new Object[] {entitiesMap.get(curCell), curCell};
+                } else {
+                    searched.add(curCell);
+                    queue.addAll(getAdjacentCells(curCell, cellsList));
+                }
+            }
+        }
+
+        return null;
+
     }
+
 
     /**
      * Находит и возвращает лист соседних клеток для заданной карты
@@ -102,9 +129,14 @@ public abstract class APathFindService {
     }
 
 
-    public static Object[] findPath(Class<?> targetClass, Cell startCell, Map map){
-        return null;
-    };
+    // TODO: проверить потом будет ли сравнение "==" работать как надо? или нужно будет менять на equals
+    public static boolean isTargetExist(Entity target, Cell targetCell, Map map) {
+        Entity _target = map.getEntitiesMap().get(targetCell);
+        if (target != null) {
+            return _target == target && _target.isAlive();
+        }
+        return false;
+    }
 
 
 }

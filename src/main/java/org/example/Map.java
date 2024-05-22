@@ -43,13 +43,17 @@ public class Map {
 
     public Map(int width, int height){
 
-        this.width = Math.min(width, 1);
-        this.height = Math.min(height, 1);
+        this.width = width;
+        this.height = height;
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
+                Cell cell = new Cell(x, y);
                 Entity entity = entityFactory.getRandomEntity();
-                entitiesMap.put(new Cell(x, y), entity);
+                if (entity != null){
+                    entity.setCell(cell);
+                }
+                entitiesMap.put(cell, entity);
 //                logger.debug(entity);
             }
         }

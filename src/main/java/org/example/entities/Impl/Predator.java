@@ -2,6 +2,7 @@ package org.example.entities.Impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.Map;
 import org.example.config.Signs;
 import org.example.entities.Creature;
 
@@ -10,7 +11,6 @@ public class Predator extends Creature {
     public static final int maxSpeed = 5;
     public static final int maxAttackPower = 5;
     private final Logger logger = LogManager.getLogger();
-    private final int attackPower;
 
     public Predator(int health, int speed, int attackPower){
         this.health = health;
@@ -40,7 +40,7 @@ public class Predator extends Creature {
 
 
     @Override
-    public void makeMove() {
+    public void makeMove(Map map) {
 
     }
 

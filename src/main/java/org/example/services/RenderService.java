@@ -18,9 +18,12 @@ public class RenderService {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                var cell = entitiesMap.get(new Cell(x, y));
+                var entity = entitiesMap.get(new Cell(x, y));
+                if (entity != null && !entity.isAlive()){
+                    entity = null;
+                }
 //              mapPicture.append(cell == null ? " .. " : " " + cell.getSign() + " ");
-                mapPicture.append(cell == null ? "  |" : cell.getSign() + "|");
+                mapPicture.append(entity == null ? "  |" : entity.getSign() + "|");
                 mapPicture.append("\t");
             }
 
