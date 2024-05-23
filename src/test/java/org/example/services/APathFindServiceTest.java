@@ -1,7 +1,7 @@
 package org.example.services;
 
-import org.example.Cell;
-import org.example.Map;
+import org.example.entities.Impl.Cell;
+import org.example.entities.Impl.Map;
 import org.example.entities.Impl.Hervibore;
 import org.junit.jupiter.api.Test;
 

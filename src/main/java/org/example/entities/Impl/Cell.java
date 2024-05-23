@@ -1,9 +1,8 @@
-package org.example;
+package org.example.entities.Impl;
 
-import java.util.Arrays;
 import java.util.Objects;
 
-public class Cell implements ICell{
+public class Cell  {
     private final int x;
     private final int y;
     private final int[] coordinates;
@@ -14,17 +13,17 @@ public class Cell implements ICell{
         this.coordinates = new int[]{x, y};
     }
 
-    @Override
+
     public int getX() {
         return x;
     }
 
-    @Override
+
     public int getY() {
         return y;
     }
 
-    @Override
+
     public int[] getCoordinates() {
         return coordinates;
     }

@@ -1,7 +1,9 @@
 package org.example.services;
 
-import org.example.Cell;
-import org.example.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.example.entities.Impl.Cell;
+import org.example.entities.Impl.Map;
 import org.example.entities.Entity;
 
 import java.util.*;
@@ -10,6 +12,8 @@ import java.util.Map.Entry;
 
 
 public abstract class APathFindService {
+    private static final Logger logger = LogManager.getLogger();
+
 
     /**
      * Возвращает массив Object[2], где первый элемент - объект-цель(Entity),
@@ -18,7 +22,7 @@ public abstract class APathFindService {
      *
      * @return массив Object[2]
      */
-    public static Object[] findNearestTarget(Class<?> targetClass, Cell startCell, Map map) {
+    public static Object[] findNearestTarget(Class<?> targetClass, Cell start, Map map) {
         Cell targetCell = null;
         Entity targetEntity = null;
         double minDistance = Double.MAX_VALUE;
@@ -26,10 +30,10 @@ public abstract class APathFindService {
             Cell cell = entry.getKey();
             Entity entity = entry.getValue();
             if (targetClass.isInstance(entity)) {
-                if (cell.calcDistance(startCell) < minDistance) {
+                if (cell.calcDistance(start) < minDistance) {
                     targetCell = cell;
                     targetEntity = entity;
-                    minDistance = cell.calcDistance(startCell);
+                    minDistance = cell.calcDistance(start);
                 }
             }
         }
@@ -50,18 +54,22 @@ public abstract class APathFindService {
      * @return массив Object[2]
      */
     // потренировался со Stream API - переписал верхнюю функцию
-    public static Object[] findNearestTargetStreamAPI(Class<?> targetClass, Cell startCell, Map map) {
+    public static Object[] findNearestTargetStreamAPI(Class<?> targetClass, Cell start, Map map) {
         Entry<Cell, Double> target_pair = map.getEntitiesMap().entrySet().stream()
                 .filter(x -> targetClass.isInstance(x.getValue()))
                 .collect(Collectors.toMap(
                         k -> k.getKey(),
-                        v -> startCell.calcDistance(v.getKey())))
+                        v -> start.calcDistance(v.getKey())))
                 .entrySet().stream().min(Entry.comparingByValue())
                 .stream().findFirst().orElse(null);
 
         if (target_pair == null) {
             return null;
         } else {
+            logger.info(map.getEntitiesMap());
+            logger.info(target_pair.getKey());
+            logger.info(map.getEntitiesMap().get(target_pair.getKey()));
+
             return new Object[]{map.getEntitiesMap().get(target_pair.getKey()), target_pair.getKey()};
         }
     }

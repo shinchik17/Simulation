@@ -1,18 +1,21 @@
 package org.example;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.example.entities.Impl.Cell;
 import org.example.entities.Impl.Grass;
 import org.example.entities.Impl.Hervibore;
+import org.example.entities.Impl.Map;
 import org.example.services.APathFindService;
 import org.example.services.Impl.AStarPathFindService;
 import org.example.services.RenderService;
 
+import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.management.GarbageCollectorMXBean;
-import java.util.ArrayDeque;
-import java.util.Arrays;
+import java.util.HashMap;
 
 public class Main {
+    private static final Logger logger = LogManager.getLogger();
     public static void main(String[] args) {
 
 //        for (int i = 0; i < Signs.ROCK.length; i++) {
@@ -26,49 +29,51 @@ public class Main {
 //        Cell startCell = new Cell(size - 1, size - 1);
         Cell startCell = new Cell(0, 0);
 
-        try (var writer = new PrintWriter(new OutputStreamWriter(System.out))) {
-            System.out.println(RenderService.renderMap(map));
+        try (var writer = new BufferedWriter(new OutputStreamWriter(System.out))) {
+            writer.write(RenderService.renderMap(map));
+            writer.flush();
 
-            long t0 = System.currentTimeMillis();
-            Object[] resultPair = APathFindService.findNearestTarget(Hervibore.class, startCell, map);
-            long t1 = System.currentTimeMillis();
-            Object[] resultPair2 = APathFindService.findNearestTargetStreamAPI(Hervibore.class, startCell, map);
-            long t2 = System.currentTimeMillis();
-
-            if (resultPair == null) {return;}
-            if (resultPair2 == null) {return;}
-
-            writer.printf("Target: %s, distance from {%d,%d}: %.1f c.u.\n", resultPair[0], startCell.getX(),
-                    startCell.getY(), ((Cell)resultPair[1]).calcDistance(startCell));
-//            writer.printf("Target: %s, distance from {%d,%d}: %.1f c.u.\n", resultPair2[0], startCell.getX(),
-//                    startCell.getY(), ((Cell)resultPair2[1]).calcDistance(startCell));
-            writer.println(Arrays.equals(resultPair, resultPair2));
-//            writer.printf("First method time: %.3f s\n", (t1-t0) / 1000f);
-//            writer.printf("Second method time: %.3f s\n", (t2-t1) / 1000f);
-
-
-//            Hervibore hervibore = map.getEntitiesMap().values().stream()
-//                    .filter(x-> Hervibore.class.isInstance(x))
-//                    .map(x-> (Hervibore) x)
-//                    .findFirst().orElse(null);
-
+            Object[] resultPair = APathFindService.findNearestTargetStreamAPI(Hervibore.class, startCell, map);
             Hervibore hervibore = (Hervibore) resultPair[0];
             Cell herviCell = (Cell) resultPair[1];
-            System.out.println(hervibore);
-            System.out.println(herviCell);
+            logger.debug(String.format("Hervibore: %s, cell: %s", hervibore, herviCell));
 
-            Object[] resultPair3 = APathFindService.findNearestTarget(Grass.class, herviCell, map);
-            Grass grass = (Grass) resultPair3[0];
-            Cell grassCell = (Cell) resultPair3[1];
+            Object[] resultPair2 = APathFindService.findNearestTargetStreamAPI(Grass.class, herviCell, map);
+            Grass grass = (Grass) resultPair2[0];
+            Cell grassCell = (Cell) resultPair2[1];
+            logger.debug(String.format("Grass: %s, cell: %s", grass, grassCell));
+
+            logger.debug("Path:" + AStarPathFindService.findPath(herviCell, grassCell, map).toString());
+
+//            EntityFactory entityFactory = new EntityFactory();
+//            logger.debug(entityFactory.getTypesStats(map.getEntitiesMap().values().stream().toList()).toString());
 
 
-            System.out.println(AStarPathFindService.findPath(herviCell, grassCell, map));
+            writer.flush();
+
 
 
             while (true){
+                var copyMap = new HashMap<>(map.getEntitiesMap());
+
+                for (var entry : copyMap.entrySet()) {
+                    if (entry.getValue() == null){
+                        continue;
+                    }
+                    if (!entry.getValue().isAlive()){
+                        logger.debug(entry.getValue());
+                        map.getEntitiesMap().put(entry.getKey(), null);
+                    }
+                }
+                String curState = RenderService.renderMap(map);
                 hervibore.makeMove(map);
-                writer.println(RenderService.renderMap(map));
+                String newState = RenderService.renderMap(map);
+                writer.write("\n\n");
+                writer.write(newState);
+                writer.flush();
             }
+
+
 
 
 

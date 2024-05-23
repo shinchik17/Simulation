@@ -3,13 +3,8 @@ package org.example.entities.Impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.Cell;
-import org.example.Map;
+import org.example.entities.*;
 import org.example.config.Signs;
-import org.example.entities.Creature;
-import org.example.entities.Entity;
-import org.example.entities.Obstacle;
-import org.example.entities.Plant;
 import org.example.services.Impl.AStarPathFindService;
 
 public class Hervibore extends Creature {
@@ -56,9 +51,11 @@ public class Hervibore extends Creature {
             if (targetPair == null) {
                 return;
             }
+            logger.debug("Cell" + cell);
             targetEntity = (Entity) targetPair[0];
             targetCell = (Cell) targetPair[1];
-            path = AStarPathFindService.findPath(targetCell, cell, map);
+            logger.debug("Found target: " + targetEntity);
+            path = AStarPathFindService.findPath(cell, targetCell, map);
         }
 
         // тупо проверка для отладки
@@ -70,7 +67,8 @@ public class Hervibore extends Creature {
         for (int i = 0; i < path.size(); i++) {
             // останавливаемся и едим
             if (path.peek().equals(targetCell)) {
-                targetEntity.reduceHealth(1);
+                logger.info("REDUCE " + targetEntity);
+                targetEntity.reduceHealth(attackPower);
             }
 
             // если столкнулись с препятствием или закончились шаги, останавливаемся
@@ -79,7 +77,10 @@ public class Hervibore extends Creature {
             }
 
             // продвигаемся на одну ячейку
+            map.getEntitiesMap().put(cell, null);
             cell = path.getFirst();
+            map.getEntitiesMap().put(cell, this);
+
         }
 
     }
@@ -87,6 +88,6 @@ public class Hervibore extends Creature {
 
     @Override
     public String toString() {
-        return "Hervibore{" + speed + sign + '}';
+        return String.format("Hervi{%s,+%s,->%s}", sign, health, speed);
     }
 }
