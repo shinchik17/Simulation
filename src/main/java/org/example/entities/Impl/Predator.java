@@ -2,10 +2,10 @@ package org.example.entities.Impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.Map;
 import org.example.config.Signs;
 import org.example.entities.Creature;
 
+// TODO: реализовать makeMove(), оптимизировать через абстрактный класс
 public class Predator extends Creature {
     public static final int maxHealth = 3;
     public static final int maxSpeed = 5;

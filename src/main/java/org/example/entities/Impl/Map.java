@@ -1,13 +1,15 @@
-package org.example;
+package org.example.entities.Impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.entities.Entity;
+import org.example.entities.Impl.Cell;
 import org.example.entities.Impl.*;
 import org.example.entities.Obstacle;
 import org.example.utils.EntityFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Map {
@@ -46,10 +48,18 @@ public class Map {
         this.width = width;
         this.height = height;
 
+        List<Entity> entities = entityFactory.getRandomEntities(width * height);
+//        logger.info(entities1.size());
+//        ArrayDeque<Entity> entities = new ArrayDeque<>(entities1);
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Cell cell = new Cell(x, y);
-                Entity entity = entityFactory.getRandomEntity();
+//                Entity entity = entityFactory.getRandomEntity();
+//                Entity entity = entities.poll();
+                Entity entity = entities.get(0);
+                entities.remove(entity);
+
                 if (entity != null){
                     entity.setCell(cell);
                 }
@@ -79,5 +89,13 @@ public class Map {
                         k -> k.getKey(),
                         v -> Boolean.TRUE));
     }
+//
+//    public HashMap<Cell, Entity> getObstaclesMap(){
+//        return (HashMap<Cell, Boolean>) entitiesMap.entrySet().stream()
+//                .filter(x -> x.getValue() instanceof Obstacle)
+//                .collect(Collectors.toMap(
+//                        k -> k.getKey(),
+//                        v -> Boolean.TRUE));
+//    }
 
 }
