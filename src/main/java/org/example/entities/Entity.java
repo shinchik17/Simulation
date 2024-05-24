@@ -1,8 +1,6 @@
 package org.example.entities;
 
 
-import org.example.entities.Impl.Cell;
-
 public abstract class Entity {
     protected String sign;
     protected int health=1;

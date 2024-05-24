@@ -1,7 +1,7 @@
 package org.example.services.Impl;
 
-import org.example.entities.Impl.Cell;
-import org.example.entities.Impl.Map;
+import org.example.entities.Cell;
+import org.example.entities.Map;
 import org.example.services.APathFindService;
 
 import java.util.*;
@@ -11,7 +11,6 @@ public class AStarPathFindService extends APathFindService {
 
 
     /**
-     * CODEIUM
      * Находит кратчайший путь от заданного начального узла к целевому узлу с использованием алгоритма A*.
      *
      * @param  start  начальная ячейка
@@ -25,7 +24,7 @@ public class AStarPathFindService extends APathFindService {
         if (nodeList == null) {
             return null;
         }
-//        Collections.reverse(nodeList);
+
         ArrayDeque<Cell> path = nodeList.stream().map(n -> new Cell(n.x, n.y)).collect(Collectors.toCollection(ArrayDeque::new));
         path.removeFirst();
 //        path.removeLast();
@@ -108,6 +107,7 @@ public class AStarPathFindService extends APathFindService {
 
         return null;
     }
+
 
     /**
      * CODEIUM

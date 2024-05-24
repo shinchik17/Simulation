@@ -1,4 +1,4 @@
-package org.example.entities.Impl;
+package org.example.entities;
 
 import java.util.Objects;
 

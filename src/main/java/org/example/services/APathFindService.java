@@ -2,8 +2,8 @@ package org.example.services;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.entities.Impl.Cell;
-import org.example.entities.Impl.Map;
+import org.example.entities.Cell;
+import org.example.entities.Map;
 import org.example.entities.Entity;
 
 import java.util.*;
@@ -16,7 +16,7 @@ public abstract class APathFindService {
 
 
     /**
-     * Возвращает массив Object[2], где первый элемент - объект-цель(Entity),
+     * Возвращает массив Object[2], где первый элемент - живой объект-цель(Entity),
      * а второй элемент - его объект-ячейка (Cell), в которой он находится.
      * Быстрее при размерах карты более 1500х1500. Реализован на цикле.
      *
@@ -29,7 +29,7 @@ public abstract class APathFindService {
         for (var entry : map.getEntitiesMap().entrySet()) {
             Cell cell = entry.getKey();
             Entity entity = entry.getValue();
-            if (targetClass.isInstance(entity)) {
+            if (targetClass.isInstance(entity) && entity.isAlive()) {
                 if (cell.calcDistance(start) < minDistance) {
                     targetCell = cell;
                     targetEntity = entity;
@@ -46,7 +46,7 @@ public abstract class APathFindService {
     }
 
     /**
-     * Возвращает массив Object[2], где первый элемент - объект-цель(Entity),
+     * Возвращает массив Object[2], где первый элемент - живой объект-цель(Entity),
      * а второй элемент - его объект-ячейка (Cell), в которой он находится.
      * Быстрее оригинального метода при картах размером менее 1500х1500.
      * Реализован на Stream API
@@ -57,6 +57,7 @@ public abstract class APathFindService {
     public static Object[] findNearestTargetStreamAPI(Class<?> targetClass, Cell start, Map map) {
         Entry<Cell, Double> target_pair = map.getEntitiesMap().entrySet().stream()
                 .filter(x -> targetClass.isInstance(x.getValue()))
+                .filter(x -> x.getValue().isAlive())
                 .collect(Collectors.toMap(
                         k -> k.getKey(),
                         v -> start.calcDistance(v.getKey())))
@@ -66,45 +67,14 @@ public abstract class APathFindService {
         if (target_pair == null) {
             return null;
         } else {
-            logger.info(map.getEntitiesMap());
-            logger.info(target_pair.getKey());
-            logger.info(map.getEntitiesMap().get(target_pair.getKey()));
+//            logger.info(map.getEntitiesMap());
+//            logger.info(target_pair.getKey());
+//            logger.info(map.getEntitiesMap().get(target_pair.getKey()));
 
             return new Object[]{map.getEntitiesMap().get(target_pair.getKey()), target_pair.getKey()};
         }
     }
 
-
-    /**
-     * Возвращает массив Object[2], где первый элемент - объект-цель(Entity),
-     * а второй элемент - его объект-ячейка (Cell), в которой он находится.
-     * Реализован посредством поиска в ширину (BFS). Медленный при картах больше ~10х10
-     *
-     * @return массив Object[2]
-     */
-    public static Object[] findNearestTargetBFS(Class<?> targetClass, Cell startCell, Map map) {
-
-        HashMap<Cell, Entity> entitiesMap = map.getEntitiesMap();
-        List<Cell> cellsList = entitiesMap.keySet().stream().toList();
-
-        ArrayDeque<Cell> queue = new ArrayDeque<>(getAdjacentCells(startCell, cellsList));
-        ArrayList<Cell> searched = new ArrayList<>();
-
-        while (!queue.isEmpty()) {
-            Cell curCell = queue.pop();
-            if (!searched.contains(curCell)) {
-                if (targetClass.isInstance(entitiesMap.get(curCell))) {
-                    return new Object[] {entitiesMap.get(curCell), curCell};
-                } else {
-                    searched.add(curCell);
-                    queue.addAll(getAdjacentCells(curCell, cellsList));
-                }
-            }
-        }
-
-        return null;
-
-    }
 
 
     /**

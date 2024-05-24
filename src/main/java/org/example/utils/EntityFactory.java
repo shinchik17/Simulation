@@ -48,14 +48,13 @@ public class EntityFactory {
         for (int i = 0; i < amount; i++) {
             entities.add(getRandomEntity());
         }
-
         balanceMap(entities);
 
         return entities;
     }
 
 
-    public HashMap<Class<?>, Integer> getTypesStats(List<Entity> entities){
+    public static HashMap<Class<?>, Integer> getTypesStats(List<Entity> entities){
 
         HashMap<Class<?>, Integer> populationMap = new HashMap<>();
 
@@ -69,6 +68,7 @@ public class EntityFactory {
 
         return populationMap;
     }
+
 
 
     private void balanceMap(List<Entity> entities){
@@ -107,19 +107,6 @@ public class EntityFactory {
                     entities.size(), origSize));
         }
 
-        //        // TODO: упростить/причесать
-//        // если не сгенерировано ни одного травоядного
-//        if (entities.stream().noneMatch(Hervibore.class::isInstance)){
-//            // если пустая клетка есть, то заменяем её на на травоядного
-//            if (entities.stream().anyMatch(Objects::isNull)){
-//                entities.add(entities.indexOf(null), createHervibore());
-//            } else if (entities.stream().anyMatch(x -> x instanceof Obstacle)) { // если нет, то пробуем заменить Tree или Rock
-//                int index = entities.indexOf(entities.stream().filter(x -> x instanceof Obstacle).findFirst().get());
-//                entities.add(index, createHervibore());
-//            } else {
-//                int a = 1;
-//            }
-//        }
         logger.debug("END BALANCING MAP");
     }
 
@@ -141,15 +128,4 @@ public class EntityFactory {
 
 
 
-
 }
-
-
-//        try {
-//            Class cl = Class.forName(possibleEntities.get(new Random().nextInt(possibleEntities.size())));
-//            entity = (Entity) cl.getDeclaredConstructor().newInstance();
-//        }
-//        catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-//                 | NoSuchMethodException | InvocationTargetException | SecurityException e) {
-//            e.printStackTrace();
-//        }
